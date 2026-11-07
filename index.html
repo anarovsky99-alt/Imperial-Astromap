@@ -123,6 +123,22 @@ if(!data.gothicSpiralWideNamesV2){
  data.gothicSpiralWideNamesV2=true;
  localStorage.setItem('imperialAstromap',JSON.stringify(data));
 }
+// Нормализация сохранённой карты перед первой отрисовкой.
+if(!Array.isArray(data.systems)||!data.systems.length)data.systems=JSON.parse(JSON.stringify(sample.systems));
+data.systems.forEach((system,i)=>{
+ if(!system||typeof system!=='object')data.systems[i]=system={id:i+1,name:'Система '+(i+1)};
+ if(!Number.isFinite(Number(system.x))||!Number.isFinite(Number(system.y))||Number(system.x)<0||Number(system.x)>2200||Number(system.y)<0||Number(system.y)>1200){
+  const angle=i*2.399963229728653,radius=45+Math.sqrt(i)*105;
+  system.x=Math.round(1100+Math.cos(angle)*radius);
+  system.y=Math.round(600+Math.sin(angle)*radius*.47);
+ }else{system.x=Number(system.x);system.y=Number(system.y)}
+ if(!system.name)system.name='Система '+(i+1);
+ if(!Array.isArray(system.planets))system.planets=[];
+ system.planets.forEach((p,j)=>{if(!p||typeof p!=='object')system.planets[j]=p={id:(Number(system.id)||i+1)*100+j+1,name:'Планета '+(j+1)};if(!Array.isArray(p.pois))p.pois=[]});
+});
+if(data.systems.length>1&&data.systems.every(s=>s.x===data.systems[0].x&&s.y===data.systems[0].y)){
+ data.systems.forEach((system,i)=>{const a=i*2.399963229728653,r=45+Math.sqrt(i)*105;system.x=Math.round(1100+Math.cos(a)*r);system.y=Math.round(600+Math.sin(a)*r*.47)});
+}
 if(!Array.isArray(data.factions))data.factions=factions.map((name,i)=>({id:'f'+i,name,color:palette[i%palette.length]}));
 data.systems.forEach(s=>s.planets.forEach(p=>{if(!p.factionId&&p.faction){let f=data.factions.find(x=>x.name===p.faction);if(f)p.factionId=f.id}}));
 let selectionMode=false,selectedObject=null;
