@@ -23,6 +23,22 @@ if(!Array.isArray(data.systems)||data.systems.length===0){
  }
  localStorage.setItem('imperialAstromap',JSON.stringify(data));
 }
+// Защита загрузки: повреждённые записи не должны останавливать отрисовку всей карты.
+if(!data||typeof data!=='object')data=JSON.parse(JSON.stringify(sample));
+if(!Array.isArray(data.systems))data.systems=[];
+data.systems=data.systems.filter(s=>s&&typeof s==='object');
+data.systems.forEach((s,i)=>{
+ if(!Array.isArray(s.planets))s.planets=[];
+ if(!Number.isFinite(Number(s.x)))s.x=180+(i%10)*145;
+ if(!Number.isFinite(Number(s.y)))s.y=130+Math.floor(i/10)*125;
+ if(!s.name)s.name='Система '+(i+1);
+ s.planets=s.planets.filter(p=>p&&typeof p==='object');
+ s.planets.forEach((p,j)=>{if(!Array.isArray(p.pois))p.pois=[];if(!p.name)p.name='Планета '+(j+1)});
+});
+if(!data.systems.length){
+ data=JSON.parse(JSON.stringify(sample));
+ localStorage.setItem('imperialAstromap',JSON.stringify(data));
+}
 let level='sector',sid=null,pid=null;
 const gothicSectorSystems=[{id:100,name:"Тронный Предел",x:65,y:55,color:palette[0],faction:"Империум",desc:"Оплот веры и имперского закона на дальних рубежах сектора.",planets:[{id:10001,name:"Астерий Прайм",type:"Мир-улей",size:"Малый",desc:"Оплот веры и имперского закона на дальних рубежах сектора.",continents:3,terrain:"Умеренный",pois:[]},{id:10002,name:"Феррум Второй",type:"Кузнечный мир",size:"Средняя",desc:"Промышленный мир, чьи литейные соборы видны с орбиты.",continents:3,terrain:"Умеренный",pois:[]},{id:10003,name:"Крига Третий",type:"Мир-храм",size:"Крупная",desc:"Забытый мир, окутанный древними пророчествами и пепельными бурями.",continents:3,terrain:"Умеренный",pois:[]},{id:10004,name:"Паллада Четвёртый",type:"Цивилизованный мир",size:"Планетарный",desc:"Пограничная крепость, удерживающая натиск ксеносов.",continents:3,terrain:"Умеренный",pois:[]},{id:10005,name:"Элизион Пятый",type:"Мир смерти",size:"Газовый гигант",desc:"Священная обитель паломников и хранителей реликвий.",continents:3,terrain:"Умеренный",pois:[]},{id:10006,name:"Доминион Шестой",type:"Феодальный мир",size:"Малый",desc:"Мир, чьи города укрыты под готическими шпилями и бастионами.",continents:3,terrain:"Умеренный",pois:[]}]},
 {id:101,name:"Врата Скорби",x:190,y:55,color:palette[1],faction:"Адептус Механикус",desc:"Промышленный мир, чьи литейные соборы видны с орбиты.",planets:[{id:10101,name:"Ноктис Прайм",type:"Кузнечный мир",size:"Средняя",desc:"Промышленный мир, чьи литейные соборы видны с орбиты.",continents:3,terrain:"Умеренный",pois:[]},{id:10102,name:"Веспера Второй",type:"Мир-храм",size:"Крупная",desc:"Забытый мир, окутанный древними пророчествами и пепельными бурями.",continents:3,terrain:"Умеренный",pois:[]},{id:10103,name:"Сороритас Третий",type:"Цивилизованный мир",size:"Планетарный",desc:"Пограничная крепость, удерживающая натиск ксеносов.",continents:3,terrain:"Умеренный",pois:[]},{id:10104,name:"Лакримоза Четвёртый",type:"Мир смерти",size:"Газовый гигант",desc:"Священная обитель паломников и хранителей реликвий.",continents:3,terrain:"Умеренный",pois:[]},{id:10105,name:"Мнемос Пятый",type:"Феодальный мир",size:"Малый",desc:"Мир, чьи города укрыты под готическими шпилями и бастионами.",continents:3,terrain:"Умеренный",pois:[]},{id:10106,name:"Аврелия Шестой",type:"Мир-крепость",size:"Средняя",desc:"Оплот веры и имперского закона на дальних рубежах сектора.",continents:3,terrain:"Умеренный",pois:[]},{id:10107,name:"Катарсис Седьмой",type:"Горнодобывающий мир",size:"Крупная",desc:"Промышленный мир, чьи литейные соборы видны с орбиты.",continents:3,terrain:"Умеренный",pois:[]}]},
